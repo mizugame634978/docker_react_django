@@ -1,33 +1,41 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-// import viteLogo from '/vite.svg'
+import axios from 'axios';
+import { useState, useEffect } from 'react'
 import './App.css'
 
+type Todo = {
+  id: number;
+  title: string;
+  completed: boolean;
+};
+
 function App() {
-  const [count, setCount] = useState(0)
+  const [todos, setTodos] = useState<Todo[]>([]);
+
+  useEffect(() => {
+    axios.get<Todo[]>("//localhost:8000/api/todo/")//語尾にはスラッシュが必要（ DEFAULT_ROUTER や APIViewを使っているため）
+      .then(res => {
+        setTodos(res.data)
+        console.log(res.data)
+      })
+      .catch((err) => {
+        console.error('APIエラー:', err);
+      });
+  }, []);
+  console.log(todos);
 
   return (
     <>
       <div>
-        <a href="https://vite.dev" target="_blank">
-          {/* <img src={viteLogo} className="logo" alt="Vite logo" /> */}
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
+        <h1>TODOアプリ</h1>
+        <ul>
+        {todos.map(todo => (
+          // todo.id
+          <li key={todo.id}>
+            {todo.title} [{todo.completed ? '✅' : '❌'}]
+          </li>
+        ))}
+      </ul>
       </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
     </>
   )
 }
