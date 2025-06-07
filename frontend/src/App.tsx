@@ -7,11 +7,17 @@ type Todo = {
   title: string;
   completed: boolean;
 };
-
+type insertTodo={
+title:string;
+completed:boolean;
+};
 function App() {
   const [todos, setTodos] = useState<Todo[]>([]);
+  const [inserTodoData, setInsertTodoData] = useState<Todo>();
+  const [deleteTodoData, setDeleteTodoData] = useState<number>();
+  const [updateTodoData, setUpdateTodoData] = useState([]);
   // :todoを格納している変化があったときに再描画
-  useEffect(() => {
+  useEffect(() => {//Todo: delete時に再描画されないので修正
     axios.get<Todo[]>("//localhost:8000/api/todo/")//語尾にはスラッシュが必要（ DEFAULT_ROUTER や APIViewを使っているため）
       .then(res => {
         setTodos(res.data)
@@ -41,11 +47,13 @@ function App() {
       })
       .catch(err => {
         console.log("error", err);
+        console.log(id);
+        
       })
   };
 
   const putTodo = (id: any) => {
-    axios.put<Todo[]>(`//localhost:8000/api/todo/${4}/`,({"title":"puted"}))
+    axios.put<Todo[]>(`//localhost:8000/api/todo/${4}/`, ({ "title": "puted" }))
       .then(() => {
         console.log("put success");
       })
@@ -64,19 +72,19 @@ function App() {
           {todos.map(todo => (
             // todo.id
             <li key={todo.id}>
-              [{todo.completed ? '✅' : '　'}]{todo.title}
+              [{todo.completed ? '✅' : '　'}]{todo.title}{todo.id}
             </li>
           ))}
         </ul>
         <div>
-          <button onClick={()=>addTodo({ "title": "on", "completed": false })}>
-            click me
-          </button>
-          
-          <button onClick={()=>deleteTodo(5)}>
+          <button onClick={() => addTodo({ "title": "on", "completed": false })}>
+            insert
+          </button><br />
+          <input type="number"  onChange={(event) => setDeleteTodoData(Number(event.target.value))}/>
+          <button onClick={() => deleteTodo(deleteTodoData)}>
             delete
-          </button>
-          <button onClick={()=>putTodo(4)}>
+          </button><br />
+          <button onClick={() => putTodo(4)}>
             put
           </button>
         </div>
