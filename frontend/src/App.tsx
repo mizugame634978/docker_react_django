@@ -13,7 +13,7 @@ completed:boolean;
 };
 function App() {
   const [todos, setTodos] = useState<Todo[]>([]);
-  const [inserTodoData, setInsertTodoData] = useState<Todo>();
+  const [inserTodoData, setInsertTodoData] = useState<string>();
   const [deleteTodoData, setDeleteTodoData] = useState<number>();
   const [updateTodoData, setUpdateTodoData] = useState([]);
   // :todoを格納している変化があったときに再描画
@@ -77,13 +77,17 @@ function App() {
           ))}
         </ul>
         <div>
-          <button onClick={() => addTodo({ "title": "on", "completed": false })}>
+          <input type="text" onChange={(event)=>setInsertTodoData(event.target.value)}/>
+          <button onClick={() => addTodo({ "title": inserTodoData, "completed": false })}>
             insert
           </button><br />
+
           <input type="number"  onChange={(event) => setDeleteTodoData(Number(event.target.value))}/>
           <button onClick={() => deleteTodo(deleteTodoData)}>
             delete
           </button><br />
+          <input type="number" />
+          <input type="text" onChange={(event)=>setUpdateTodoData(event.target.value)}/>
           <button onClick={() => putTodo(4)}>
             put
           </button>
