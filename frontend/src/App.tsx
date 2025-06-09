@@ -15,7 +15,8 @@ function App() {
   const [todos, setTodos] = useState<Todo[]>([]);
   const [inserTodoData, setInsertTodoData] = useState<string>();
   const [deleteTodoData, setDeleteTodoData] = useState<number>();
-  const [updateTodoData, setUpdateTodoData] = useState([]);
+  const [updateTodoText, setUpdateTodoText] = useState<string>("");
+  const [updateId,setUpdateId]=useState<number>(-1);//エラーを消すために使用しないIDの-1を入れている
   // :todoを格納している変化があったときに再描画
   useEffect(() => {//Todo: delete時に再描画されないので修正
     axios.get<Todo[]>("//localhost:8000/api/todo/")//語尾にはスラッシュが必要（ DEFAULT_ROUTER や APIViewを使っているため）
@@ -52,8 +53,8 @@ function App() {
       })
   };
 
-  const putTodo = (id: any) => {
-    axios.put<Todo[]>(`//localhost:8000/api/todo/${4}/`, ({ "title": "puted" }))
+  const putTodo = (id: number,title:string) => {
+    axios.put<Todo[]>(`//localhost:8000/api/todo/${id}/`, ({ "title": title }))
       .then(() => {
         console.log("put success");
       })
@@ -86,9 +87,9 @@ function App() {
           <button onClick={() => deleteTodo(deleteTodoData)}>
             delete
           </button><br />
-          <input type="number" />
-          <input type="text" onChange={(event)=>setUpdateTodoData(event.target.value)}/>
-          <button onClick={() => putTodo(4)}>
+          <input type="number" onChange={(event)=>setUpdateId(Number(event.target.value))}/>
+          <input type="text" onChange={(event)=>setUpdateTodoText(event.target.value)}/>
+          <button onClick={() => putTodo(updateId,updateTodoText)}>
             put
           </button>
         </div>
