@@ -30,18 +30,19 @@ function App() {
   }, []);
   // console.log(todos);
 
-  const addTodo = (data: any) => {
+  const addTodo = (data: insertTodo) => {
 
-    axios.post<Todo[]>("//localhost:8000/api/todo/", data)
-      .then(() => {
+    axios.post<Todo>("//localhost:8000/api/todo/", data)
+      .then((res) => {
         console.log("post success");
+        setTodos([...todos,res.data])
       })
       .catch(err => {
         console.log("error", err);
       })
   };
 
-  const deleteTodo = (id: any) => {
+  const deleteTodo = (id: number) => {
     axios.delete<Todo[]>(`//localhost:8000/api/todo/${id}/`)
       .then(() => {
         console.log("delete success");
