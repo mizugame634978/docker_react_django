@@ -13,8 +13,8 @@ completed:boolean;
 };
 function App() {
   const [todos, setTodos] = useState<Todo[]>([]);
-  const [inserTodoData, setInsertTodoData] = useState<string>();
-  const [deleteTodoData, setDeleteTodoData] = useState<number>();
+  const [inserTodoData, setInsertTodoData] = useState<string>("");
+  const [deleteTodoData, setDeleteTodoData] = useState<number>(-1);
   const [updateTodoText, setUpdateTodoText] = useState<string>("");
   const [updateId,setUpdateId]=useState<number>(-1);//エラーを消すために使用しないIDの-1を入れている
   // :todoを格納している変化があったときに再描画
@@ -46,6 +46,7 @@ function App() {
     axios.delete<Todo[]>(`//localhost:8000/api/todo/${id}/`)
       .then(() => {
         console.log("delete success");
+        setTodos(todos.filter(todo => todo.id !== id));
       })
       .catch(err => {
         console.log("error", err);
@@ -53,16 +54,36 @@ function App() {
         
       })
   };
-
+  /**todoの内容自体を変更する */
   const putTodo = (id: number,title:string) => {
-    axios.put<Todo[]>(`//localhost:8000/api/todo/${id}/`, ({ "title": title }))
-      .then(() => {
+    axios.put<Todo>(`//localhost:8000/api/todo/${id}/`, ({ "title": title }))
+      .then((res) => {
         console.log("put success");
+         setTodos(todos.map(t => (t.id === id ? res.data : t)));//idと一致したら更新データを返し、そうでないなら本のデータを返すmap
       })
       .catch(err => {
         console.log("error", err);
       })
   };
+
+  /**チェックをする、外す */
+  const checkTodo =(id:number)=>{
+    const nowTodo =todos.filter(todo=>todo.id===id);
+    const nowCompleted = nowTodo[0].completed;
+    console.log(id,nowCompleted,!nowCompleted);
+    const nowTitle = nowTodo[0].title;
+    
+    //  setTodos(todos.filter(todo => todo.id !== id));
+    axios.put<Todo>(`//localhost:8000/api/todo/${id}/`, ({ "completed": !nowCompleted,"title":nowTitle }))
+      .then((res) => {
+        console.log("put success");
+         setTodos(todos.map(t => (t.id === id ? res.data : t)));//idと一致したら更新データを返し、そうでないなら本のデータを返すmap
+        //  res.dataで更新したデータが返ってきている
+      })
+      .catch(err => {
+        console.log("error", err);
+      })
+  }
   //  
 
 
@@ -74,7 +95,7 @@ function App() {
           {todos.map(todo => (
             // todo.id
             <li key={todo.id}>
-              [{todo.completed ? '✅' : '　'}]{todo.title}{todo.id}
+              [{todo.completed ? '✅' : '➖️'}]{todo.title}🐱{todo.id}
             </li>
           ))}
         </ul>
@@ -88,10 +109,16 @@ function App() {
           <button onClick={() => deleteTodo(deleteTodoData)}>
             delete
           </button><br />
+          {/* 更新 */}
           <input type="number" onChange={(event)=>setUpdateId(Number(event.target.value))}/>
           <input type="text" onChange={(event)=>setUpdateTodoText(event.target.value)}/>
           <button onClick={() => putTodo(updateId,updateTodoText)}>
             put
+          </button><br />
+          {/* チェックのトグル */}
+          <input type="number" onChange={(event)=>setUpdateId(Number(event.target.value))}/>
+          <button onClick={() => checkTodo(updateId)}>
+            check toggle
           </button>
         </div>
       </div>
